@@ -156,7 +156,14 @@ fi
 
 if ! [[ "$port" == "false" ]]; then
   cd ./$project/
-  python -m http.server $port &> /dev/null &
+
+  pyversion=$(python -c 'import sys; print(sys.version_info.major)')
+  if [ "$pyversion" == 3 ]; then
+    python -m http.server $port &> /dev/null &
+  else
+    python -m SimpleHTTPServer $port &> /dev/null &
+  fi
+
   open http://localhost:$port/
 
   if $verbose; then
@@ -177,4 +184,3 @@ else
 fi
 
 exit 0
-
