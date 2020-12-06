@@ -7,12 +7,12 @@
 4. Add `mkweb` command to your shell profile:
 ```
 # If running bash:
-setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" | echo $setup_mkweb >> ~/.bash_profile
+setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.bash_profile
 # Or:
-setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" | echo $setup_mkweb >> ~/.bashrc
+setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.bashrc
 
 # If running Zsh:
-setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" | echo $setup_mkweb >> ~/.zschrc
+setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.zschrc
 ```
 5. Restart your shell session (or alternatively `source` your user profile - e.g. `source ~/.bash_profile`)
 
