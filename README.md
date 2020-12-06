@@ -20,6 +20,14 @@ Designed for and tested on Linux (MacOS).
 
 ## Ideas for additional features
 - Pass number of default pages to include, other than index.html
-- Handle correct port ranges - https://www.sciencedirect.com/topics/computer-science/registered-port
 - If verbose, echo files added (index.html, css/style.css)
 - Add config to pass default author, language, etc. for HTML files (currently set up as me)
+
+#### Handling default port ranges:
+https://www.journaldev.com/34113/opening-a-port-on-linux
+http://www.steves-internet-guide.com/tcpip-ports-sockets/
+
+Thoughts:
+- Do not allow ephemeral port (0-1023) *unless* forced (with an additional flag?)
+- Take the port that is passed and check if free in user ports (1024-49151); if free then continue, else exit with message saying port is occupied and for user to choose another port or clear the port
+- Remaining ports: dynamic ports (49152-65535); read into these, but suggest similar action to ephemeral ports
