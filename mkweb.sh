@@ -4,6 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
+GREY='\033[0;37m'
 NC='\033[0m'
 
 verbose=false
@@ -40,8 +41,6 @@ function show_help () {
   Additional commands:
     -v --verbose                  Extended descriptive stdout
     -h --help                     Show help
-
-  N.B. launching HTTP web server is dependent on Python3.
 "
 }
 
@@ -165,7 +164,10 @@ if ! [[ "$port" == "false" ]]; then
     echo -e "${YELLOW}Launched a simple HTTP server on port 8000.\n\nhint: if you're seeing an Error 404 response, try:
       # lsof -n -i :${port} | grep LISTEN
       kill -9 $pid\nand then run:
-      python -m http.server $port &> /dev/null &
+
+      python3 -m http.server $port &> /dev/null &  ${GREY}# If running Python 3+${YELLOW}
+      python -m SimpleHTTPServer $port  ${GREY}# If running Python 2${YELLOW}
+
       open http://localhost:$port/${NC}"
   fi
 else
