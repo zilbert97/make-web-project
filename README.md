@@ -21,6 +21,5 @@ Designed for and tested on Linux (MacOS).
 ## Ideas for additional features
 - Pass number of default pages to include, other than index.html
 - Handle correct port ranges - https://www.sciencedirect.com/topics/computer-science/registered-port
-- Include python2 support to launch SimpleHTTP web server (currently requires python3 executed with alias python)
 - If verbose, echo files added (index.html, css/style.css)
 - Add config to pass default author, language, etc. for HTML files (currently set up as me)
