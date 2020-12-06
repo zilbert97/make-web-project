@@ -4,16 +4,13 @@
 1. `git clone` this repo to your location of choice
 2. `cd` into the cloned repo
 3. Make sure the file is executable by running `chmod +x mkweb.sh`
-4. Add `mkweb` command to your shell profile:
-```
-# If running bash:
-setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.bash_profile
-# Or:
-setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.bashrc
-
-# If running Zsh:
-setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.zschrc
-```
+4. Add `mkweb` command to your shell profile:\
+  ***If Bash shell:***\
+  `setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.bash_profile`\
+  *or*\
+  `setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.bashrc`\
+  ***If Zsch shell:***\
+  `setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.zschrc`\
 5. Restart your shell session (or alternatively `source` your user profile - e.g. `source ~/.bash_profile`)
 
 Designed for and tested on Linux (MacOS).
