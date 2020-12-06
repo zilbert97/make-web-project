@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-#--------------------------------------------------------
-# Creates a development environment for a new web project
-#--------------------------------------------------------
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 RED='\033[0;31m'
@@ -167,6 +163,7 @@ if ! [[ "$port" == "false" ]]; then
   if $verbose; then
     pid=$(lsof -t -i :$port -s TCP:LISTEN)
     echo -e "${YELLOW}Launched a simple HTTP server on port 8000.\n\nhint: if you're seeing an Error 404 response, try:
+      # lsof -n -i :${port} | grep LISTEN
       kill -9 $pid\nand then run:
       python -m http.server $port &> /dev/null &
       open http://localhost:$port/${NC}"
@@ -179,15 +176,3 @@ fi
 
 exit 0
 
-# N.B. process ID obtained via:
-# lsof -n -i :${port} | grep LISTEN
-
-#--------------------------------------------
-# Ideas for future additional implementations
-#--------------------------------------------
-
-# Pass number of default pages to include, other than index.html
-# Handle correct port ranges - https://www.sciencedirect.com/topics/computer-science/registered-port
-# Include python2 support to launch SimpleHTTP web server
-# If verbose echo files added (index.html, css/style.css)
-# Add config to pass default author, language, etc. for HTML files
