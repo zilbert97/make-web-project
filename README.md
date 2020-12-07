@@ -12,7 +12,7 @@ Sets up and launches a web development project.
   `setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.bashrc`\
   \
   *If Zsh shell:*\
-  `setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.zschrc`\
+  `setup_mkweb="alias mkweb='$(pwd)/mkweb.sh'" ; echo $setup_mkweb >> ~/.zschrc`
 5. Restart your shell session (or alternatively `source` your user profile - e.g. `source ~/.bash_profile`)
 
 ## Usage:
