@@ -19,6 +19,7 @@ Designed for and tested on Linux (MacOS).
 - Pass number of default pages to include, other than index.html
 - If verbose, echo files added (index.html, css/style.css)
 - Add config to pass default author, language, etc. for HTML files (currently set up as me)
+- Add a launch protocol option to choose to launch with Python, file path, etc.
 
 #### Handling default port ranges:
 https://www.journaldev.com/34113/opening-a-port-on-linux
