@@ -13,18 +13,18 @@ port=8000
 
 function show_help () {
   echo -e "
-  usage: webdev [-h --help] [-v --verbose] [-l --launch=<number | bool>]
-                [-f --fonts] [-j --java] [-i --js --javascript]
-                [-p --py --python] [-r --ruby] <project-name>
+  usage: mkweb [-h --help] [-v --verbose] [-l --launch=<number | bool>]
+               [-f --fonts] [-j --java] [-i --js --javascript]
+               [-p --py --python] [-r --ruby] <project-name>
 
   mkweb sets up a web development project folder with the following file structure:
-    ./
-    +-- <project-name>/
-        +-- css/
-        |   +-- style.css
-        |
-        +-- img/
-        +-- index.html
+ 
+    <project-name>/
+      +-- css/
+      |   +-- style.css
+      |
+      +-- img/
+      +-- index.html
 
   Manually select which subdirectories to add to the project folder:
     -f --fonts                    Create a subdirectory for web fonts
@@ -87,6 +87,23 @@ while :; do
       elif ! [[ "$port" =~ ^[0-9]+$ ]]; then  # If otherwise not a number, handle error
         echo -e "${RED}WARNING: '--launch' requires a port number or bool.${NC}"
         exit 1
+
+      # Check port is in correct range
+
+      elif (( port >= 0 && port <= 1023 )) || (( port >= 49152 && port <= 65535)); then
+        while true; do        
+          read -p $'\e[1;33mThe port you have chosen is not recommended - using a user port (in the range 1024-49151) is STRONGLY advised. Do you wish to continue? (y/N): \e[0m' yn
+            case $yn in
+            [Yy]* ) make install; break;;
+            [Nn]* ) exit;;
+            * ) echo -e "${YELLOW}Please answer yes or no.${NC}";;
+          esac
+       done
+
+      elif (( port < 0 )) || (( port >= 65536 )); then
+        echo -e "${RED}WARNING: Invalid port number."
+        exit 1
+
       else                                    # Else port is a number; keep set as number
         :
       fi
