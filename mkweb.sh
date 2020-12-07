@@ -2,10 +2,11 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-GREY='\033[0;37m'
-NC='\033[0m'
+RED='\033[0;31m'     # For error warnings
+YELLOW='\033[1;33m'  # For hints
+GREY='\033[0;37m'    # For comments
+CYAN='\e[0;36m'      # For directories
+NC='\033[0m'         # Reset colour
 
 verbose=false
 subdirs=("css" "img")
@@ -17,7 +18,7 @@ function show_help () {
                [-f --fonts] [-j --java] [-i --js --javascript]
                [-p --py --python] [-r --ruby] <project-name>
 
-  mkweb sets up a web development project folder with the following file structure:
+  mkweb sets up a web development project folder with the following default file structure:
  
     <project-name>/
       +-- css/
@@ -160,7 +161,7 @@ else
 
   # If verbose, show the dirs, subdirs, and files created
   if $verbose; then
-    echo -e "${YELLOW}Created the following subdirectories:\n    ${subdirs[@]}${NC}\n"
+    echo -e "\nCreated the following subdirectories:\n   ${CYAN}${subdirs[@]}${NC}\n"
   fi
 
   # Copy template files to the working directory
@@ -184,10 +185,9 @@ if ! [[ "$port" == "false" ]]; then
   open http://localhost:$port/
 
   if $verbose; then
-    pid=$(lsof -t -i :$port -s TCP:LISTEN)
-    echo -e "${YELLOW}Launched a simple HTTP server on port 8000.\n\nhint: if you're seeing an Error 404 response, try:
-      # lsof -n -i :${port} | grep LISTEN
-      kill -9 $pid\nand then run:
+    pid=$(lsof -t -i :$port -s TCP:LISTEN)                        # MANUALLY PERFORM: lsof -n -i :${port} | grep LISTEN
+    echo -e "Launched a simple HTTP server on port 8000.\n\n${YELLOW}hint: if you're seeing an Error 404 response, try:\n
+      kill -9 $pid ${GREY}# That number is the PID that port $port is running on${YELLOW}\n\nand then run:
 
       python3 -m http.server $port &> /dev/null &  ${GREY}# If running Python 3+${YELLOW}
       python -m SimpleHTTPServer $port  ${GREY}# If running Python 2${YELLOW}
@@ -196,7 +196,7 @@ if ! [[ "$port" == "false" ]]; then
   fi
 else
   if $verbose; then
-    echo -e "${YELLOW}--launch=false - no HTTP server has been launched."
+    echo "No HTTP server has been launched."
   fi
 fi
 
