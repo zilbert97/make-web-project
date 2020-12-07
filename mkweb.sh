@@ -13,18 +13,18 @@ port=8000
 
 function show_help () {
   echo -e "
-  usage: webdev [-h --help] [-v --verbose] [-l --launch=<number | bool>]
-                [-f --fonts] [-j --java] [-i --js --javascript]
-                [-p --py --python] [-r --ruby] <project-name>
+  usage: mkweb [-h --help] [-v --verbose] [-l --launch=<number | bool>]
+               [-f --fonts] [-j --java] [-i --js --javascript]
+               [-p --py --python] [-r --ruby] <project-name>
 
   mkweb sets up a web development project folder with the following file structure:
-    ./
-    +-- <project-name>/
-        +-- css/
-        |   +-- style.css
-        |
-        +-- img/
-        +-- index.html
+ 
+    <project-name>/
+      +-- css/
+      |   +-- style.css
+      |
+      +-- img/
+      +-- index.html
 
   Manually select which subdirectories to add to the project folder:
     -f --fonts                    Create a subdirectory for web fonts
