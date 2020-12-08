@@ -39,7 +39,8 @@ Additional commands:
 - `-h --help` - show help
 
 ## Supplementaty notes:
-Designed for and tested on Linux (MacOS).
+- Includes stylesheet for normalize v8.0.1
+- Designed for and tested on Linux (MacOS).
 
 ## Ideas for additional features
 - Pass number of default pages to include, other than index.html
