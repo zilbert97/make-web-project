@@ -8,9 +8,6 @@ GREY='\033[0;37m'    # For comments
 CYAN='\e[0;36m'      # For directories
 NC='\033[0m'         # Reset colour
 
-verbose=false
-subdirs=("css" "img")
-port=8000
 
 function show_help () {
   echo -e "
@@ -46,6 +43,11 @@ function show_help () {
 }
 
 
+port=8000
+verbose=false
+normalize=true
+subdirs=("css" "img")
+
 while :; do
   case $1 in
 
@@ -68,6 +70,10 @@ while :; do
       ;;
 
     # Launch simple HTTP server; default launch on port 8000
+
+# CAUGHT BUG:
+# -l without arg passed must be the last flag, anything else passed (such as the
+# directory name) gets interpreted.
 
     -l|--launch)
       if [ -n "$2" ]; then
@@ -117,6 +123,37 @@ while :; do
 
     # Other flags
 
+# CAUGHT BUG:
+# -n without arg passed must be the last flag, anything else passed (such as the
+# directory name) gets interpreted.
+
+    -n|--normalize)
+      if [ -n "$2" ]; then
+        normalize=$2
+        shift
+      else
+        echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
+        exit 1
+      fi
+      ;;
+
+    -n=?*|--normalize=?*)                     # Handle the value passed
+      normalize=${1#*=}                       # Assign everything after "="
+      if [[ "$normalize" == "false" ]]; then  # If "--normalize=false", set normalize to false
+        normalize=false
+      elif [[ "$normalize" == "true" ]]; then # If "--normalize=true", keep set as true
+        normalize=true
+      else                                    # If otherwise not bool, handle error
+        echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
+        exit 1
+      fi
+      ;;
+
+    -n=|--normalize=)                         # Handle if empty "--normalize"
+      echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
+      exit 1
+      ;;
+
     -v|--verbose)                             # Set "verbose" to true, for extended stdout
       verbose=true
       ;;
@@ -161,14 +198,26 @@ else
 
   # If verbose, show the dirs, subdirs, and files created
   if $verbose; then
-    echo -e "\nCreated the following subdirectories:\n   ${CYAN}${subdirs[@]}${NC}\n"
+    echo -e "\nCreated the following subdirectories:\n  ${CYAN}${subdirs[@]}${NC}"
   fi
 
   # Copy template files to the working directory
   cp $DIR/index_template.html $project/index.html
   cp $DIR/stylesheet_template.css $project/css/style.css
-fi
 
+  # Copy normalize CSS file
+  if $normalize; then
+    cp $DIR/normalize_template.css $project/css/normalize.css
+  fi
+  
+  if $verbose; then
+    echo -e "Included the following files:\n  index.html\n  css/style.css"
+    if $normalize; then
+      echo "  css/normalize.css"
+    fi
+    echo -e ""
+  fi
+fi
 
 # Launch a Simple HTTP server on port 8000 for testing
 
