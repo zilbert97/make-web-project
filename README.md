@@ -44,5 +44,5 @@ Designed for and tested on Linux (MacOS).
 ## Ideas for additional features
 - Pass number of default pages to include, other than index.html
 - If verbose, echo files added (index.html, css/style.css)
-- Add config to pass default author, language, etc. for HTML files (currently set up as me)
+- Add config to pass default author, language, etc. for HTML files (currently set up as me); and default launch protocol?
 - Add a launch protocol option to choose to launch with Python, file path, etc.
