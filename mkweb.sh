@@ -72,7 +72,7 @@ while :; do
     -l*|--launch*)
       if [[ "$1" != *=* ]] || [[ "$1" == *= ]]; then
         shift
-        echo "NO VALUE PASSED TO -B SO EXITING!"
+        echo "NO VALUE PASSED TO -L SO EXITING!"
         exit 1
       else
         port="${1#*=}"
@@ -100,61 +100,53 @@ while :; do
       fi
       ;;
 
-# CAUGHT BUG:
-# -n without arg passed must be the last flag, anything else passed (such as the
-# directory name) gets interpreted.
-
-    -n|--normalize)
-      if [ -n "$2" ]; then
-        normalize=$2
+    #-- Launch simple HTTP server; default launch on port 8000
+    -n*|--normalize*)
+      if [[ "$1" != *=* ]] || [[ "$1" == *= ]]; then
         shift
+        echo "NO VALUE PASSED TO -N SO EXITING!"  # -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
+        exit 1
       else
-        echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
-        exit 1
+        normalize="${1#*=}"
+
+        #-- Validate normalize arg passed
+        if [[ "$normalize" == "false" ]]; then
+          normalize=false
+        elif [[ "$normalize" == "true" ]]; then
+          normalize=true
+        else
+          echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
+          exit 1
+        fi
       fi
       ;;
 
-    -n=?*|--normalize=?*)                     # Handle the value passed
-      normalize=${1#*=}                       # Assign everything after "="
-      if [[ "$normalize" == "false" ]]; then  # If "--normalize=false", set normalize to false
-        normalize=false
-      elif [[ "$normalize" == "true" ]]; then # If "--normalize=true", keep set as true
-        normalize=true
-      else                                    # If otherwise not bool, handle error
-        echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
-        exit 1
-      fi
-      ;;
-
-    -n=|--normalize=)                         # Handle if empty "--normalize"
-      echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
-      exit 1
-      ;;
-
-    -v|--verbose)                             # Set "verbose" to true, for extended stdout
+    #-- Other arguments
+    -v|--verbose)             #-- Set "verbose" to true, for extended stdout
       verbose=true
       ;;
-    -h|--help)                                # Call a "show_help" function, then exit
+    -h|--help)                #-- Call a "show_help" function, then exit
       show_help
       exit 0
       ;;
-    --)                                       # End of options
+
+    --)                       #-- End of options
       shift
       break
       ;;
-    -?*)                                      # Call a "show_help" function, then exit
-      echo -e "${RED}Invalid option: $1${NC}"
-      # show_help
+    -?*)                      #-- Call a "show_help" function, then exit
+      echo -e "${RED}WARNING: '$1' is an invalid option.${NC}"
+      show_help
       exit 1
       ;;
-    *)                                        # Default case: if no more options, break out of the loop
+    *)                        #-- Default case: if no more options, break out of the loop
       break
   esac
   shift
 done
 
 
-# If no name for project dir is passed, ask for name
+# If no name for project dir passed, ask for name
 if [ "$1" != "" ]; then
   project="$1"
 else
