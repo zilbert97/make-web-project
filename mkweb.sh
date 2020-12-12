@@ -42,17 +42,44 @@ function show_help () {
 "
 }
 
+function show_verbose() {
+  echo -e "Created the following subdirectories:"
+  for i in "${subdirs[@]}"; do
+    echo -e "  ${CYAN}${i}${NC}"
+  done; echo ""
 
+  echo -e "Included the following files:"
+  for i in "${web_files[@]}"; do
+    echo "  ${i}"
+  done; echo ""
+
+  if [[ $port != false ]]; then
+    pid=$(lsof -t -i :$port -s TCP:LISTEN)  # MANUALLY PERFORM: lsof -n -i :${port} | grep LISTEN
+    echo -e "Launched a simple HTTP server on port ${port}.
+
+${YELLOW}Hint: ${NC}if you're seeing an Error 404 response, try:
+>> ${YELLOW}kill -9 $pid ${GREY}# The PID that port $port is currently running on
+
+${NC}And then run:
+>> ${YELLOW}python3 -m http.server $port &> /dev/null &  ${GREY}# If running Python 3+${NC}
+>> ${YELLOW}python -m SimpleHTTPServer $port  ${GREY}# If running Python 2${NC}
+
+>> ${YELLOW}open http://localhost:$port/${NC}"
+  else
+    echo -e "No HTTP server has been launched."
+  fi
+}
+
+# Default values
 port=8000
 verbose=false
 include_normalize=false
-include_bootstrap=false              # IF TRUE, CHANGE CSS/SCSS FILENAMES TO CUSTOM
+include_bootstrap=false
 include_sass=false
 
-
+style_sheet="style"
 subdirs=("css" "img")
 web_files=()
-style_sheet='style'
 
 # If no args passed, show help
 if [ "$1" == "" ]; then
@@ -195,10 +222,10 @@ elif $include_normalize && $include_bootstrap; then
 fi
 
 # If verbose output the dirs, subdirs, and files created to stdout
-if $verbose; then
-  echo -e "\nCreated the following subdirectories:\n  ${CYAN}${subdirs[@]}${NC}\n"
-  echo -e "Included the following files:\n  ${web_files[@]}\n"
-fi
+# if $verbose; then
+#   echo -e "\nCreated the following subdirectories:\n  ${CYAN}${subdirs[@]}${NC}\n"
+#   echo -e "Included the following files:\n  ${web_files[@]}\n"
+# fi
 
 # Validate if port not false, launch simple HTTP server
 if [[ $port != false ]]; then
@@ -211,22 +238,13 @@ if [[ $port != false ]]; then
     python -m SimpleHTTPServer $port &> /dev/null &
   fi
 
+  # If including 'sass --watch scss:css' it should go here
+
   open http://localhost:$port/
+fi
 
-  if $verbose; then
-    pid=$(lsof -t -i :$port -s TCP:LISTEN)                        # MANUALLY PERFORM: lsof -n -i :${port} | grep LISTEN
-    echo -e "Launched a simple HTTP server on port ${port}.\n\n${YELLOW}hint: if you're seeing an Error 404 response, try:\n
-      kill -9 $pid ${GREY}# The PID that port $port is running on${YELLOW}\n\nand then run:
-
-      python3 -m http.server $port &> /dev/null &  ${GREY}# If running Python 3+${YELLOW}
-      python -m SimpleHTTPServer $port  ${GREY}# If running Python 2${YELLOW}
-
-      open http://localhost:$port/${NC}"
-  fi
-else
-  if $verbose; then
-    echo "No HTTP server has been launched."
-  fi
+if $verbose; then
+  show_verbose
 fi
 
 exit 0
