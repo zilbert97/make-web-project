@@ -45,8 +45,19 @@ function show_help () {
 
 port=8000
 verbose=false
-normalize=true
+include_normalize=false
+include_bootstrap=false              # IF TRUE, CHANGE CSS/SCSS FILENAMES TO CUSTOM
+include_sass=false
+
+
 subdirs=("css" "img")
+web_files=()
+style_sheet='style'
+
+# If no args passed, show help
+if [ "$1" == "" ]; then
+  show_help; exit 0
+fi
 
 while :; do
   case $1 in
@@ -55,8 +66,8 @@ while :; do
     -f|--fonts)               #-- Add subdir for Fonts
       subdirs+=("fonts")
       ;;
-    -j|--jv|--java)
-      subdirs+=("java")       #-- Add subdir for Java
+    -j|--jv|--java)           #-- Add subdir for Java
+      subdirs+=("java")
       ;;
     -i|--js|--javascript)     #-- Add subdir for JavaScript
       subdirs+=("js")
@@ -68,11 +79,33 @@ while :; do
       subdirs+=("ruby")
       ;;
 
+    -s|--sass|--scss)         #-- Add subdir for Sass
+      touch err_log
+      sass --version > /dev/null 2> err_log
+      if [[ -s err_log ]]; then
+        echo -e "${RED}WARNING: Sass doesn't appear to be installed on your system.\nPlease install Sass first, then try again.${NC}";
+        rm -f err_log; exit 1
+      else
+        subdirs+=("scss")
+        include_sass=true
+        rm -f err_log
+      fi
+      ;;
+
+    -b|--bootstrap)           #-- Include bootstrapping
+      include_bootstrap=true
+      style_sheet='custom'
+      ;;
+
+    -n|--normalize)           #-- Include normalization stylesheet
+      include_normalize=true
+      ;;
+
     #-- Launch simple HTTP server; default launch on port 8000
     -l*|--launch*)
       if [[ "$1" != *=* ]] || [[ "$1" == *= ]]; then
         shift
-        echo "NO VALUE PASSED TO -L SO EXITING!"
+        echo "${RED}WARNING: '--launch' requires a port number or bool.${NC}"
         exit 1
       else
         port="${1#*=}"
@@ -90,33 +123,12 @@ while :; do
             while true; do
               read -p $'\e[1;33mThe port you have chosen is not recommended - using a user port (in the range 1024-49151) is STRONGLY advised. Do you wish to continue? (y/N): \e[0m' yn
               case $yn in
-                [Yy]* ) make install; break;;
+                [Yy]* ) break;;  # THIS WAS 'make install; break;;'
                 [Nn]* ) exit;;
                 * ) echo -e "${YELLOW}Please answer yes or no.${NC}";;
               esac
             done
           fi
-        fi
-      fi
-      ;;
-
-    #-- Launch simple HTTP server; default launch on port 8000
-    -n*|--normalize*)
-      if [[ "$1" != *=* ]] || [[ "$1" == *= ]]; then
-        shift
-        echo "NO VALUE PASSED TO -N SO EXITING!"  # -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
-        exit 1
-      else
-        normalize="${1#*=}"
-
-        #-- Validate normalize arg passed
-        if [[ "$normalize" == "false" ]]; then
-          normalize=false
-        elif [[ "$normalize" == "true" ]]; then
-          normalize=true
-        else
-          echo -e "${RED}WARNING: '--normalize' requires a boolean value.${NC}"
-          exit 1
         fi
       fi
       ;;
@@ -145,44 +157,47 @@ while :; do
   shift
 done
 
-
-# If no name for project dir passed, ask for name
-if [ "$1" != "" ]; then
-  project="$1"
-else
-  read -p "Enter the name for your new web project: " project
-fi
-
+# Set name of the project as the arg passed after flags.
 # If directory already exists raise warning and exit with code 1
+project="$1"
 if [ -d $project/ ]; then
   echo -e "${RED}WARNING: That project already exists in the current working directory.\nPlease try again with a new project name.${NC}"
   exit 1
 fi
 
+# Create dirs for flags passed
 for i in ${subdirs[@]}; do
   mkdir -p $project/$i
 done
 
-# If verbose, show the dirs, subdirs, and files created
-if $verbose; then
-  echo -e "\nCreated the following subdirectories:\n  ${CYAN}${subdirs[@]}${NC}"
-fi
-
-# Copy template files to the working directory
+# Copy template HTML file to the working directory
 cp $DIR/index_template.html $project/index.html
-cp $DIR/stylesheet_template.css $project/css/style.css
+# If bootstrap, add bootstrap to head of HTML that has been copied
+# Or use seperate template for bootstrap?
+web_files+=("index.html")
 
-# Copy normalize CSS file
-if $normalize; then
-  cp $DIR/normalize_template.css $project/css/normalize.css
+# Copy template CSS file to the working directory (relevant subdir)
+if ! $include_sass; then
+  cp $DIR/stylesheet_template.css $project/css/$style_sheet.css
+  web_files+=("css/${style_sheet}.css")
+else
+  cp $DIR/stylesheet_template.css $project/scss/$style_sheet.scss
+  touch $project/css/$style_sheet.css
+  web_files+=("css/${style_sheet}.css" "scss/${style_sheet}.scss")
 fi
 
+# Copy normalize CSS file only if not including bootstrap
+if $include_normalize && ! $include_bootstrap; then
+  cp $DIR/normalize_template.css $project/css/normalize.css
+  web_files+=("css/normalize.css")
+elif $include_normalize && $include_bootstrap; then
+  echo -e "${YELLOW}Bootstrap includes normalization by default. '--normalize' ignored.${NC}"
+fi
+
+# If verbose output the dirs, subdirs, and files created to stdout
 if $verbose; then
-  echo -e "Included the following files:\n  index.html\n  css/style.css"
-  if $normalize; then
-    echo "  css/normalize.css"
-  fi
-  echo -e ""
+  echo -e "\nCreated the following subdirectories:\n  ${CYAN}${subdirs[@]}${NC}\n"
+  echo -e "Included the following files:\n  ${web_files[@]}\n"
 fi
 
 # Validate if port not false, launch simple HTTP server
