@@ -32,10 +32,10 @@ OPTIONS: –––––––––––––––––––––––�
   -j, --java                     Create a subdirectory for java scripts.
   -p, --py, --python             Create a subdirectory for Python scripts.
   -r, --ruby                     Create a subdirectory for ruby scripts.
-  -s, --sass, --scss             Create a subdirectory for Sass scripts.
-                                 Contents of the template .css file will be
-                                 copied to scss/style.scss, with a blank
-                                 stylesheet added at css/style.css.
+  -s, --sass, --scss             Create a subdirectory for Sass (.scss)
+                                 scripts. Contents of the template .css file
+                                 will be copied to scss/style.scss, with a
+                                 blank stylesheet added at css/style.css.
 
   -b, --bootstrap                Include Bootstrap to the project. If you plan
                                  to use Bootstrap in your project we recommend
