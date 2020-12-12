@@ -16,36 +16,26 @@ Sets up and launches a web development project.
 5. Restart your shell session (or alternatively `source` your user profile - e.g. `source ~/.bash_profile`)
 
 ## Usage:
-```
-webdev [-h --help] [-v --verbose] [-l --launch=<number | bool>]
-       [-f --fonts] [-j --java] [-i --js --javascript]
-       [-p --py --python] [-r --ruby] <project-name>
-```
-Manually select which subdirectories to add to the project folder:
-- `-f --fonts` - create a subdirectory for web fonts
-- `-i --js --javascript` - create a subdirectory for javascript scripts
-- `-j --java` - create a subdirectory for java scripts
-- `-p --py --python` - create a subdirectory for Python scripts
-- `-r --ruby` - create a subdirectory for ruby scripts
 
-By default webdev launches an HTTP server on port 8000. Other options:
-`-l=<number or bool> --launch=<number or bool>`
-- `<number>`: pick an alternative port to launch on
-- `true`: launch on port 8000 (default)
-- `false`: do not launch HTTP server
-
-Additional commands:
-- `-v --verbose` - extended descriptive stdout
-- `-h --help` - show help
 
 ## Supplementaty notes:
 - Includes stylesheet for normalize v8.0.1
 - Designed for and tested on Linux (MacOS).
 
-## Ideas for additional features
+<hr>
+
+## Next steps:
+1. Add --bootstrap, --normalize, --sass to help
+2. Update --verbose output (including "run sass scss:css" if --sass)
+3. Apply bootstrap - either add to index.html, or create another template with bootstrap included
+4. Update README usage section with new features
+
+## Ideas for additional features:
+- Add a description to `show_help`
+- Encourage modifying template file contents (note step 3^ "create another template with bootstrap included") - N.B. consider setting names of files in a config file that is `.gitignore`'d, so that pulls do not overwrite template files
 - Pass number of default pages to include, other than index.html
 - Add config to pass default author, language, etc. for HTML files (currently set up as me); and default launch protocol?
-- Add a launch protocol option to choose to launch with Python, file path, etc.
+- Continue to allow `--launch` flag for one-line execution - but consider adding a `launch` command so that you can start session through one command `mkweb launch`?
+- Add a launch protocol option to choose to launch with Python, file path, etc. (e.g. `--launch-protocal=python`, `--launch-protocol=local`
 - Make all verbose into a single function call
-- Change --launch and --normalize so that if no param passed, default to true
-
+- Change --launch so that if no param passed, default to true
