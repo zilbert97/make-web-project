@@ -37,5 +37,4 @@ Sets up and launches a web development project.
 - Add config to pass default author, language, etc. for HTML files (currently set up as me); and default launch protocol?
 - Continue to allow `--launch` flag for one-line execution - but consider adding a `launch` command so that you can start session through one command `mkweb launch`?
 - Add a launch protocol option to choose to launch with Python, file path, etc. (e.g. `--launch-protocal=python`, `--launch-protocol=local`
-- Make all verbose into a single function call
 - Change --launch so that if no param passed, default to true
