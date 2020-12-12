@@ -10,36 +10,48 @@ NC='\033[0m'         #-- Reset colour
 
 
 function show_help () {
-  echo -e "
-  usage: mkweb [-h --help] [-v --verbose] [-l --launch=<number | bool>]
-               [-f --fonts] [-j --java] [-i --js --javascript]
-               [-p --py --python] [-r --ruby] <project-name>
+  echo -e "usage: mkweb [options] (<project-name> | <subcommand>)
 
-  mkweb sets up a web development project folder with the following default file structure:
+ABOUT: –––––––––––––––––––––––––––––––––––
+By default mkweb sets up a web development project folder with the following
+file structure:
 
-    <project-name>/
-      +-- css/
-      |   +-- style.css
-      |
-      +-- img/
-      +-- index.html
+  ./<project-name>/
+    +–– css/
+    |   +–– style.css
+    |
+    +–– img/
+    +–– index.html
 
-  Manually select which subdirectories to add to the project folder:
-    -f --fonts                    Create a subdirectory for web fonts
-    -i --js --javascript          Create a subdirectory for javascript scripts
-    -j --java                     Create a subdirectory for java scripts
-    -p --py --python              Create a subdirectory for Python scripts
-    -r --ruby                     Create a subdirectory for ruby scripts
+OPTIONS: –––––––––––––––––––––––––––––––––
+  -h, --help                     Print this usage information.
+  -v, --verbose                  Print addition detail to stdout.
 
-  By default webdev launches an HTTP server on port 8000 (equal to "--launch=true"):
-    -l --launch=<number or bool>  true: launch on port 8000 (default)
-                                  false: do not launch HTTP server
-                                  <number>: alternatively pick the port to launch on
+  -f, --fonts                    Create a subdirectory for web fonts.
+  -i, --js, --javascript         Create a subdirectory for javascript scripts.
+  -j, --java                     Create a subdirectory for java scripts.
+  -p, --py, --python             Create a subdirectory for Python scripts.
+  -r, --ruby                     Create a subdirectory for ruby scripts.
+  -s, --sass, --scss             Create a subdirectory for Sass scripts.
+                                 Contents of the template .css file will be
+                                 copied to scss/style.scss, with a blank
+                                 stylesheet added at css/style.css.
 
-  Additional commands:
-    -v --verbose                  Extended descriptive stdout
-    -h --help                     Show help
-"
+  -b, --bootstrap                Include Bootstrap to the project. If you plan
+                                 to use Bootstrap in your project we recommend
+                                 passing this option as it defaults stylesheet
+                                 names to 'custom' instead of 'style' to
+                                 prevent conflicts.
+  -n, --normalize                Include normalize.css in the project. Note
+                                 is ignored if '--bootstrap' is also passed, as
+                                 Bootstrap provides normalization built in.
+  -l, --launch=<bool>|<number>   By default launches an HTTP server on port
+                                 8000 from the root of the project directory.
+                                 true: launch on port 8000 (default).
+                                 false: do not launch HTTP server.
+                                 <number>: pass the port number to launch on."
+# Subcommands: –––––––––––––––––––––––––––––
+#   launch                         Test a pre-existing web project.
 }
 
 function show_verbose() {
