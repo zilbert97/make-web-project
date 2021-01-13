@@ -243,16 +243,26 @@ fi
 if [[ $port != false ]]; then
   cd ./$project/
 
-  pyv=$(python -c 'import sys; print(sys.version_info.major)')
-  if [[ $pyv == 3 ]]; then
-    python -m http.server $port &> /dev/null &
-  else
-    python -m SimpleHTTPServer $port &> /dev/null &
-  fi
+  # This is inherently flawed; if python2 is ran it will return python2, but if python3 is ran it will return python3.
+  # A possible (but perhaps not ideal solution) will execute the first if statement, and if catching  a raised error
+  # then perform the python2 line.
+  # pyv=$(/usr/bin/python -c 'import sys; print(sys.version_info.major)')
+  # if [[ $pyv == 3 ]]; then
+    # /usr/bin/python3 -m http.server $port &> /dev/null &
+  # else
+    # /usr/bin/python -m SimpleHTTPServer $port &> /dev/null &
+  # fi
+
+  # TEMPORARY WORKAROUND
+  /usr/bin/python3 -m http.server $port &> /dev/null &
 
   # If including 'sass --watch scss:css' it should go here
 
-  open http://localhost:$port/
+  # `open` is a MacOS command; `xdg-open` is the Linux equivalent.
+  # However note that if the first command fails it will still display the error message, then attempt the next.
+  # Need to try and figure out how to work around this.
+
+  open http://localhost:$port/ || xdg-open http://localhost:$port/ &> /dev/null
 fi
 
 if $verbose; then
