@@ -37,12 +37,12 @@ OPTIONS: –––––––––––––––––––––––�
                                  will be copied to scss/style.scss, with a
                                  blank stylesheet added at css/style.css.
 
-  -b, --bootstrap                Include Bootstrap to the project. If you plan
+  --bootstrap                    Include Bootstrap to the project. If you plan
                                  to use Bootstrap in your project we recommend
                                  passing this option as it defaults stylesheet
                                  names to 'custom' instead of 'style' to
                                  prevent conflicts.
-  -n, --normalize                Include normalize.css in the project. Note
+  --normalize                    Include normalize.css in the project. Note
                                  is ignored if '--bootstrap' is also passed, as
                                  Bootstrap provides normalization built in.
   -l, --launch=<bool>|<number>   By default launches an HTTP server on port
@@ -100,7 +100,6 @@ fi
 
 while :; do
   case $1 in
-
     #-- Subdirs to create
     -f|--fonts)               #-- Add subdir for Fonts
       subdirs+=("fonts")
@@ -131,12 +130,12 @@ while :; do
       fi
       ;;
 
-    -b|--bootstrap)           #-- Include bootstrapping
+    --bootstrap)              #-- Include bootstrapping
       include_bootstrap=true
       style_sheet='custom'
       ;;
 
-    -n|--normalize)           #-- Include normalization stylesheet
+    --normalize)              #-- Include normalization stylesheet
       include_normalize=true
       ;;
 
@@ -162,13 +161,22 @@ while :; do
             while true; do
               read -p $'\e[1;33mThe port you have chosen is not recommended - using a user port (in the range 1024-49151) is STRONGLY advised. Do you wish to continue? (y/N): \e[0m' yn
               case $yn in
-                [Yy]* ) break;;  # THIS WAS 'make install; break;;'
+                [Yy]* ) break;;
                 [Nn]* ) exit;;
                 * ) echo -e "${YELLOW}Please answer yes or no.${NC}";;
               esac
             done
           fi
         fi
+      fi
+      ;;
+
+    -b*|--browser*)
+      if [[ $1 != *=* ]] || [[ $1 == *= ]]; then
+        echo -e "${RED}WARNING: '--browser' requires a value passed.${NC}"
+        exit 1
+      else
+        browser="${1#*=}"
       fi
       ;;
 
@@ -195,6 +203,32 @@ while :; do
   esac
   shift
 done
+
+function openwith() {
+  if [[ "$1" == "default" ]]; then
+    shift
+    unix_name=$(uname)
+    if [[ "$unix_name" == "Darwin" ]]; then   # E.g. MacOS
+      open $1 &> /dev/null
+    elif [[ "$unix_name" == "Linux" ]]; then  # E.g. Ubuntu
+      xdg-open $1 &> /dev/null
+    fi
+
+  # N.B. the following is for LINUX; may need to adjust for MacOS.
+  elif [[ "$1" == "google-chrome" ]]; then
+    shift
+    /usr/bin/google-chrome $1 &> /dev/null
+  elif [[ "$1" == "firefox" ]]; then
+    shift
+    /usr/bin/firefox $1 &> /dev/null
+  elif [[ "$1" == "safari" ]]; then
+    shift
+    /usr/bin/safari $1 &> /dev/null
+  else
+    echo -e "${RED}WARNING: The browser passed is not recognised.${NC}"
+    exit 1
+  fi
+}
 
 # Set name of the project as the arg passed after flags.
 # If directory already exists raise warning and exit with code 1
@@ -243,26 +277,11 @@ fi
 if [[ $port != false ]]; then
   cd ./$project/
 
-  # This is inherently flawed; if python2 is ran it will return python2, but if python3 is ran it will return python3.
-  # A possible (but perhaps not ideal solution) will execute the first if statement, and if catching  a raised error
-  # then perform the python2 line.
-  # pyv=$(/usr/bin/python -c 'import sys; print(sys.version_info.major)')
-  # if [[ $pyv == 3 ]]; then
-    # /usr/bin/python3 -m http.server $port &> /dev/null &
-  # else
-    # /usr/bin/python -m SimpleHTTPServer $port &> /dev/null &
-  # fi
-
-  # TEMPORARY WORKAROUND
-  /usr/bin/python3 -m http.server $port &> /dev/null &
-
+  # Execute one of, depending if python2 or python3
+  /usr/bin/python3.8 -m http.server $port &> /dev/null & # || python -m SimpleHTTPServer $port &> /dev/null &
   # If including 'sass --watch scss:css' it should go here
 
-  # `open` is a MacOS command; `xdg-open` is the Linux equivalent.
-  # However note that if the first command fails it will still display the error message, then attempt the next.
-  # Need to try and figure out how to work around this.
-
-  open http://localhost:$port/ || xdg-open http://localhost:$port/ &> /dev/null
+  openwith "$browser" "http://localhost:${port}/"
 fi
 
 if $verbose; then
