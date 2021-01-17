@@ -67,8 +67,9 @@ OPTIONS: –––––––––––––––––––––––�
 
 ## Next steps:
 1. Update --verbose output (including "run sass scss:css" if --sass)
-2. Apply bootstrap - either add to index.html, or create another template with bootstrap included
-3. Update README usage section with new features
+2. Modify help
+3. Apply bootstrap - either add to index.html, or create another template with bootstrap included
+4. Update README usage section with new features
 
 ## Ideas for additional features:
 - Add a description to `show_help`
