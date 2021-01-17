@@ -45,6 +45,11 @@ OPTIONS: –––––––––––––––––––––––�
   --normalize                    Include normalize.css in the project. Note
                                  is ignored if '--bootstrap' is also passed, as
                                  Bootstrap provides normalization built in.
+
+  -b, --browser=<browser-name>   By default opens the site using the computer's
+                                 default web browser. Accepts one of 'default',
+                                 '[google-]chrome', '[microsoft- | ms-]edge',
+                                 '[mozilla- | mz-]firefox', 'opera', 'safari'.
   -l, --launch=<bool>|<number>   By default launches an HTTP server on port
                                  8000 from the root of the project directory.
                                  true: launch on port 8000 (default).
@@ -205,28 +210,70 @@ while :; do
 done
 
 function openwith() {
-  if [[ "$1" == "default" ]]; then
-    shift
-    unix_name=$(uname)
-    if [[ "$unix_name" == "Darwin" ]]; then   # E.g. MacOS
-      open $1 &> /dev/null
-    elif [[ "$unix_name" == "Linux" ]]; then  # E.g. Ubuntu
-      xdg-open $1 &> /dev/null
+  warn_not_installed="${RED}WARNING: that browser does not appeat to be installed on your system.${NC}"
+  unix_name=$(uname)
+
+  browser_choice=$1
+  web_file=$2
+
+  # Darwin (e.g. MacOS) - NOT TESTED YET
+  if [[ "$unix_name" == "Darwin" ]]; then
+    if [[ "$browser_choice" == "default" ]]; then
+      open $web_file &> /dev/null
+    else
+
+      function verify_and_open() {
+        if open -Ra "$1" &> /dev/null; then
+          open -a "$1" $web_file &> /dev/null
+        else
+          echo -e $warn_not_installed
+          exit 1
+        fi
+      }
+
+      if [[ "$1" =~ ^(google-)?chrome$ ]]; then
+        verify_and_open "Google Chrome"
+      elif [[ "$1" =~ ^(mozilla-|mz-)?firefox$ ]]; then
+        verify_and_open "Firefox"
+      elif [[ "$1" =~ ^(microsoft-|ms-)?edge$ ]]; then
+        verify_and_open "Microsoft Edge"
+      elif [[ "$1" == "safari" ]]; then
+        verify_and_open "Safari"
+      elif [[ "$1" == "opera" ]]; then
+        verify_and_open "Opera"
+      else
+        echo -e "${RED}WARNING: The browser passed is not recognised.${NC}"
+        exit 1
+      fi
     fi
 
-  # N.B. the following is for LINUX; may need to adjust for MacOS.
-  elif [[ "$1" == "google-chrome" ]]; then
-    shift
-    /usr/bin/google-chrome $1 &> /dev/null
-  elif [[ "$1" == "firefox" ]]; then
-    shift
-    /usr/bin/firefox $1 &> /dev/null
-  elif [[ "$1" == "safari" ]]; then
-    shift
-    /usr/bin/safari $1 &> /dev/null
-  else
-    echo -e "${RED}WARNING: The browser passed is not recognised.${NC}"
-    exit 1
+  # Linux (e.g. Ubuntu)
+  elif [[ "$unix_name" == "Linux" ]]; then
+    if [[ "$1" == "default" ]]; then
+      xdg-open $2 &> /dev/null
+    else
+      if [[ "$1" =~ ^(google-)?chrome$ ]]; then
+        browser_path=$(command -v google-chrome)
+      elif [[ "$1" =~ ^(mozilla-|mz-)?firefox$ ]]; then
+        browser_path=$(command -v firefox)
+      elif [[ "$1" =~ ^(microsoft-|ms-)?edge$ ]]; then
+        browser_path=$(command -v microsoft-edge)
+      elif [[ "$1" == "safari" ]]; then
+        browser_path=$(command -v safari)
+      elif [[ "$1" == "opera" ]]; then
+        browser_path=$(command -v opera)
+      else
+        echo -e "${RED}WARNING: The browser passed is not recognised.${NC}"
+        exit 1
+      fi
+
+      if [[ "$browser_path" != "" ]]; then
+        $browser_path $2 &> /dev/null &
+      else
+        echo -e "${RED}WARNING: '${1}' does not appeat to be installed on your system.${NC}"
+        exit 1
+      fi
+    fi
   fi
 }
 
