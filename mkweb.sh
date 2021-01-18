@@ -325,7 +325,21 @@ if [[ $port != false ]]; then
   cd ./$project/
 
   # Execute one of, depending if python2 or python3
-  /usr/bin/python3.8 -m http.server $port &> /dev/null & # || python -m SimpleHTTPServer $port &> /dev/null &
+
+  #======================
+  # This needs to change:
+
+  # Linux: Python is located at /usr/bin/3.8
+  # MacOS: Python is located at /Users/zg/.pyenv/shims/python
+
+  unix_name=$(uname)
+  if [[ "$unix_name" == "Darwin" ]]; then
+    /Users/zg/.pyenv/shims/python -m http.server $port &> /dev/null &
+  elif [[ "$unix_name" == "Linux" ]]; then
+    /usr/bin/python3.8 -m http.server $port &> /dev/null & # || python -m SimpleHTTPServer $port &> /dev/null &
+  fi
+  #======================
+
   # If including 'sass --watch scss:css' it should go here
 
   openwith "$browser" "http://localhost:${port}/"
