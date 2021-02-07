@@ -9,6 +9,10 @@ CYAN='\e[0;36m'      #-- For directories
 NC='\033[0m'         #-- Reset colour
 
 
+#======================
+# HELP MESSAGE
+#======================
+
 function show_help () {
   echo -e "usage: mkweb [options] (<project-name> | <subcommand>)
 
@@ -28,8 +32,7 @@ OPTIONS: –––––––––––––––––––––––�
   -v, --verbose                  Print addition detail to stdout.
 
   -f, --fonts                    Create a subdirectory for web fonts.
-  -i, --js, --javascript         Create a subdirectory for javascript scripts.
-  -j, --java                     Create a subdirectory for java scripts.
+  -j, --js, --javascript         Create a subdirectory for javascript scripts.
   -p, --py, --python             Create a subdirectory for Python scripts.
   -r, --ruby                     Create a subdirectory for ruby scripts.
   -s, --sass, --scss             Create a subdirectory for Sass (.scss)
@@ -59,6 +62,11 @@ OPTIONS: –––––––––––––––––––––––�
 #   launch                         Test a pre-existing web project.
 }
 
+
+#================
+# VERBOSE OUTPUT
+#================
+
 function show_verbose() {
   echo -e "Created the following subdirectories:"
   for i in "${subdirs[@]}"; do
@@ -87,12 +95,17 @@ ${NC}And then run:
   fi
 }
 
-# Default values
+
+#================
+# DEFAULT VALUES
+#================
+
 port=8000
 verbose=false
 include_normalize=false
 include_bootstrap=false
 include_sass=false
+browser="default"
 
 style_sheet="style"
 subdirs=("css" "img")
@@ -105,14 +118,12 @@ fi
 
 while :; do
   case $1 in
-    #-- Subdirs to create
+
+    #===== PROJECT SUBDIRS =====
     -f|--fonts)               #-- Add subdir for Fonts
       subdirs+=("fonts")
       ;;
-    -j|--jv|--java)           #-- Add subdir for Java
-      subdirs+=("java")
-      ;;
-    -i|--js|--javascript)     #-- Add subdir for JavaScript
+    -j|--js|--javascript)     #-- Add subdir for JavaScript
       subdirs+=("js")
       ;;
     -p|--py|--python)         #-- Add subdir for Python
@@ -126,15 +137,14 @@ while :; do
       touch err_log
       sass --version > /dev/null 2> err_log
       if [[ -s err_log ]]; then
-        echo -e "${RED}WARNING: Sass doesn't appear to be installed on your system.\nPlease install Sass first, then try again.${NC}";
-        rm -f err_log; exit 1
-      else
-        subdirs+=("scss")
-        include_sass=true
+        echo -e "${YELLOW}CAUTION: Sass doesn't appear to be installed on your system.\nAdding scss/ subdirectory and continuing with setup.${NC}";
         rm -f err_log
       fi
+      subdirs+=("scss")
+      include_sass=true
       ;;
 
+    #===== OTHER WEB TOOLS =====
     --bootstrap)              #-- Include bootstrapping
       include_bootstrap=true
       style_sheet='custom'
@@ -144,7 +154,10 @@ while :; do
       include_normalize=true
       ;;
 
-    #-- Launch simple HTTP server; default launch on port 8000
+    # --jq | --jquery)
+    #   ;;
+
+    #==== LAUNCH SIMPLE HTTP SERVER =====
     -l*|--launch*)
       if [[ "$1" != *=* ]] || [[ "$1" == *= ]]; then
         shift
@@ -176,6 +189,7 @@ while :; do
       fi
       ;;
 
+    #===== BROWSER TO OPEN SITE WITH =====
     -b*|--browser*)
       if [[ $1 != *=* ]] || [[ $1 == *= ]]; then
         echo -e "${RED}WARNING: '--browser' requires a value passed.${NC}"
@@ -185,7 +199,7 @@ while :; do
       fi
       ;;
 
-    #-- Other arguments
+    #===== OTHER ARGS =====
     -v|--verbose)             #-- Set "verbose" to true, for extended stdout
       verbose=true
       ;;
@@ -209,6 +223,11 @@ while :; do
   shift
 done
 
+
+#==================================
+# SELECT BROWSER TO OPEN SITE WITH
+#==================================
+
 function openwith() {
   warn_not_installed="${RED}WARNING: that browser does not appeat to be installed on your system.${NC}"
   unix_name=$(uname)
@@ -216,7 +235,7 @@ function openwith() {
   browser_choice=$1
   web_file=$2
 
-  # Darwin (e.g. MacOS) - NOT TESTED YET
+  # Darwin (e.g. MacOS)
   if [[ "$unix_name" == "Darwin" ]]; then
     if [[ "$browser_choice" == "default" ]]; then
       open $web_file &> /dev/null
@@ -277,6 +296,11 @@ function openwith() {
   fi
 }
 
+
+#============================
+# CREATE PROJECT AND SUBDIRS
+#============================
+
 # Set name of the project as the arg passed after flags.
 # If directory already exists raise warning and exit with code 1
 project="$1"
@@ -292,8 +316,8 @@ done
 
 # Copy template HTML file to the working directory
 cp $DIR/index_template.html $project/index.html
-# If bootstrap, add bootstrap to head of HTML that has been copied
-# Or use seperate template for bootstrap?
+# NTD: if bootstrap, add bootstrap to head of HTML that has been copied
+# NTD: if jQuery, add to head of HTML that has been copied
 web_files+=("index.html")
 
 # Copy template CSS file to the working directory (relevant subdir)
@@ -324,23 +348,38 @@ fi
 if [[ $port != false ]]; then
   cd ./$project/
 
-  # Execute one of, depending if python2 or python3
+  #========================
+  # CHECK PYTHON INSTALLED
+  #========================
 
-  #======================
-  # This needs to change:
+  warn_no_python="${RED}WARNING: It looks like you don't have Python installed on your system.${NC}"
 
-  # Linux: Python is located at /usr/bin/3.8
-  # MacOS: Python is located at /Users/zg/.pyenv/shims/python
+  pyv_array=()
 
-  unix_name=$(uname)
-  if [[ "$unix_name" == "Darwin" ]]; then
-    /Users/zg/.pyenv/shims/python -m http.server $port &> /dev/null &
-  elif [[ "$unix_name" == "Linux" ]]; then
-    /usr/bin/python3.8 -m http.server $port &> /dev/null & # || python -m SimpleHTTPServer $port &> /dev/null &
+  for pyv in /usr/bin/* ; do
+    if [[ "$pyv" =~ ^/usr/bin/python(2|3)+(\.[0-9]+)$ ]]; then
+      pyv_array+=("$pyv")
+    fi
+  done
+
+  # N.B.
+  # On MacOS my Python is located at /Users/zg/.pyenv/shims/python
+  # Check is also at /usr/bin on MacOS (location on Ubuntu)
+
+  #====================================
+  # OPEN PROJECT ON SIMPLE HTTP SERVER
+  #====================================
+
+  if (( ${#pyv_array[@]} == 0 )); then
+    echo -e warn_no_python
+    exit 1
+  # Python3
+  elif [[ ${pyv_array[-1]} =~ ^/usr/bin/python3+(\.[0-9]+)$ ]]; then
+    ${pyv_array[-1]} -m http.server $port &> /dev/null &
+  # Python2
+  else
+    ${pyv_array[-1]} -m SimpleHTTPServer $port &> /dev/null &
   fi
-  #======================
-
-  # If including 'sass --watch scss:css' it should go here
 
   openwith "$browser" "http://localhost:${port}/"
 fi
